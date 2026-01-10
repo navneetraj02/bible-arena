@@ -285,11 +285,9 @@ export default function Quiz() {
             </div>
 
             {/* Question */}
-            <h2 className="text-xl font-bold leading-relaxed">
-              {currentQuestion.question}
-            </h2>
-
-            {/* Options */}
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              Bible Arena
+            </h1>    {/* Options */}
             <div className="space-y-3">
               {currentOptions.map((option, index) => (
                 <QuizOption

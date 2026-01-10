@@ -42,10 +42,70 @@ export default function OnlineGame() {
     const currentQIndex = match?.currentQuestionIndex || 0;
     const currentQuestion = match?.questions[currentQIndex];
 
+    const [timeLeft, setTimeLeft] = useState(10);
+
+    // Timer logic
+    useEffect(() => {
+        if (!match || match.status !== 'playing' || hasAnswered) return;
+
+        const timer = setInterval(() => {
+            setTimeLeft((prev) => {
+                if (prev <= 1) {
+                    handleAnswer(-1); // Auto-submit wrong/timeout
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [match?.currentQuestionIndex, match?.status, hasAnswered]);
+
+    // Reset timer trigger
+    useEffect(() => {
+        setTimeLeft(10);
+        setHasAnswered(false);
+        setSelectedAnswer(null);
+    }, [match?.currentQuestionIndex]);
+
+    // Next Question Orchestrator (Only Player 1 runs this)
+    useEffect(() => {
+        if (!match || match.status !== 'playing') return;
+
+        const p1Answer = match.player1?.currentAnswer;
+        const p2Answer = match.player2?.currentAnswer;
+
+        if (p1Answer !== null && p1Answer !== undefined && p2Answer !== null && p2Answer !== undefined) {
+            // Both have answered
+            if (user.uid === match.player1.uid) {
+                const timeoutId = setTimeout(async () => {
+                    const matchRef = doc(db, 'matches', match.id);
+                    const nextIndex = (match.currentQuestionIndex || 0) + 1;
+
+                    if (nextIndex >= match.questions.length) {
+                        await updateDoc(matchRef, {
+                            status: 'finished',
+                            [`player1.currentAnswer`]: null,
+                            [`player2.currentAnswer`]: null
+                        });
+                    } else {
+                        await updateDoc(matchRef, {
+                            currentQuestionIndex: nextIndex,
+                            [`player1.currentAnswer`]: null,
+                            [`player2.currentAnswer`]: null
+                        });
+                    }
+                }, 2000);
+                return () => clearTimeout(timeoutId);
+            }
+        }
+    }, [match?.player1?.currentAnswer, match?.player2?.currentAnswer, user?.uid]); // Watch answers
+
     // Handle answering
     const handleAnswer = async (index: number) => {
         if (!match || hasAnswered || !user) return;
 
+        // Optimistic update
         setSelectedAnswer(index);
         setHasAnswered(true);
 
@@ -59,43 +119,10 @@ export default function OnlineGame() {
             [`${currentPlayer}.score`]: increment(points),
             [`${currentPlayer}.currentAnswer`]: index
         });
-
-        // Check if opponent has also answered
-        const opponentData = match[opponent];
-        if (opponentData?.currentAnswer !== null && opponentData?.currentAnswer !== undefined) {
-            // Both answered, move to next question after delay
-            setTimeout(async () => {
-                // Only one player needs to trigger the next question update to avoid race conditions
-                // Let player1 be the host
-                if (currentPlayer === 'player1') {
-                    const nextIndex = currentQIndex + 1;
-                    if (nextIndex >= match.questions.length) {
-                        // Game Over
-                        await updateDoc(matchRef, {
-                            status: 'finished',
-                            [`player1.currentAnswer`]: null,
-                            [`player2.currentAnswer`]: null
-                        });
-                    } else {
-                        // Next Question
-                        await updateDoc(matchRef, {
-                            currentQuestionIndex: nextIndex,
-                            [`player1.currentAnswer`]: null,
-                            [`player2.currentAnswer`]: null
-                        });
-                    }
-                }
-            }, 2000);
-        }
     };
 
     // Reset local state when question changes
-    useEffect(() => {
-        if (match?.currentQuestionIndex !== undefined) {
-            setSelectedAnswer(null);
-            setHasAnswered(false);
-        }
-    }, [match?.currentQuestionIndex]);
+    // (Handled by timer reset effect above)
 
 
     if (!match || !user) return (
@@ -166,6 +193,9 @@ export default function OnlineGame() {
                 <div className="flex flex-col items-center">
                     <span className="text-xs text-muted-foreground uppercase tracking-wider">Round</span>
                     <span className="text-xl font-bold">{currentQIndex + 1} / {match.questions.length}</span>
+                    <div className={cn("text-lg font-mono font-bold mt-1", timeLeft <= 3 ? "text-red-500 animate-pulse" : "text-primary")}>
+                        00:{timeLeft.toString().padStart(2, '0')}
+                    </div>
                 </div>
 
                 <div className="flex flex-col items-end">
