@@ -22,8 +22,8 @@ export default function Leaderboard() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
       day: 'numeric',
     });
   };
@@ -32,7 +32,7 @@ export default function Leaderboard() {
     <div className="min-h-screen bg-background px-4 py-6">
       {/* Gradient orbs */}
       <div className="fixed top-0 left-0 w-[400px] h-[400px] bg-gold/10 rounded-full blur-[100px] -z-10" />
-      
+
       <div className="max-w-lg mx-auto">
         {/* Header */}
         <div className="text-center mb-8 animate-slide-up">
@@ -40,7 +40,7 @@ export default function Leaderboard() {
             <Trophy className="w-8 h-8 text-black" />
           </div>
           <h1 className="text-2xl font-bold mb-1">Leaderboard</h1>
-          <p className="text-muted-foreground text-sm">Top Bible Quiz Champions</p>
+          <p className="text-muted-foreground text-sm">Top Bible Arena Champions</p>
         </div>
 
         {entries.length === 0 ? (
@@ -113,11 +113,11 @@ export default function Leaderboard() {
                       <div className="w-8 flex justify-center">
                         {getRankIcon(index + 1)}
                       </div>
-                      
+
                       <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
                         <User className="w-5 h-5 text-muted-foreground" />
                       </div>
-                      
+
                       <div className="flex-1 min-w-0">
                         <div className="font-semibold truncate">{entry.name}</div>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -131,7 +131,7 @@ export default function Leaderboard() {
                           </span>
                         </div>
                       </div>
-                      
+
                       <div className="text-right">
                         <div className="text-lg font-bold">{entry.score}</div>
                         <div className="text-xs text-muted-foreground">pts</div>

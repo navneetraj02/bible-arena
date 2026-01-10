@@ -24,9 +24,12 @@ export function Header() {
             <div className="w-10 h-10 rounded-xl gradient-gold flex items-center justify-center shadow-gold transition-transform group-hover:scale-105">
               <BookOpen className="w-5 h-5 text-white" />
             </div>
-            <span className="font-serif text-xl font-bold hidden sm:block">
-              Bible Quiz
-            </span>
+            <div className="flex flex-col">
+              <span className="font-serif text-xl font-bold hidden sm:block">
+                Bible Arena
+              </span>
+              <p className="text-muted-foreground text-sm">Top Bible Arena Champions</p>
+            </div>
           </Link>
 
           {/* Desktop nav */}

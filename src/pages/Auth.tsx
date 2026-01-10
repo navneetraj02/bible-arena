@@ -370,6 +370,11 @@ export default function Auth() {
         {/* Back to Home */}
         <div className="text-center">
           <Button variant="ghost" onClick={async () => {
+            if (user) {
+              toast.info("Already logged in");
+              navigate('/');
+              return;
+            }
             setIsSubmitting(true);
             const { error } = await signInAsGuest();
             if (error) {

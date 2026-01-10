@@ -109,7 +109,7 @@ export default function Multiplayer() {
                   <div className="text-xs text-muted-foreground">Host</div>
                 </div>
               </div>
-              
+
               <div className="mt-4 p-4 rounded-xl border-2 border-dashed border-muted-foreground/30 text-center">
                 <p className="text-muted-foreground text-sm">
                   Waiting for other players to join...
@@ -192,13 +192,13 @@ export default function Multiplayer() {
           <img src={logo} alt="Bible Arena" className="w-16 h-16 mx-auto" />
           <div>
             <h1 className="text-2xl font-bold text-foreground">Play with Friends</h1>
-            <p className="text-muted-foreground">Challenge your friends to a Bible quiz battle</p>
+            <p className="text-muted-foreground">Challenge your friends to a Bible battle</p>
           </div>
         </div>
 
         {/* Options */}
         <div className="space-y-4">
-          <Card 
+          <Card
             className="glass-card border-0 cursor-pointer hover:scale-[1.02] transition-transform"
             onClick={() => setMode('create')}
           >
@@ -215,7 +215,7 @@ export default function Multiplayer() {
             </CardContent>
           </Card>
 
-          <Card 
+          <Card
             className="glass-card border-0 cursor-pointer hover:scale-[1.02] transition-transform"
             onClick={() => setMode('join')}
           >
@@ -235,7 +235,7 @@ export default function Multiplayer() {
 
         <div className="p-4 rounded-xl bg-warning/10 border border-warning/20">
           <p className="text-sm text-center text-warning-foreground">
-            ⚠️ Real-time multiplayer requires backend integration. 
+            ⚠️ Real-time multiplayer requires backend integration.
             Enable Lovable Cloud to play with friends online.
           </p>
         </div>

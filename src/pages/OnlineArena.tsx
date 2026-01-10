@@ -164,7 +164,7 @@ export default function OnlineArena() {
         <div className="p-4 rounded-xl bg-warning/10 border border-warning/20">
           <p className="text-sm text-center text-warning-foreground">
             ⚠️ Online features require backend integration.
-            Enable Lovable Cloud for real-time multiplayer and global leaderboards.
+            Join real-time multiplayer battles and global leaderboards.
           </p>
         </div>
 

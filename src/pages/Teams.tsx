@@ -115,7 +115,7 @@ export default function Teams() {
 
         {/* Options */}
         <div className="space-y-4">
-          <Card 
+          <Card
             className="glass-card border-0 cursor-pointer hover:scale-[1.02] transition-transform"
             onClick={() => setMode('create')}
           >
@@ -132,7 +132,7 @@ export default function Teams() {
             </CardContent>
           </Card>
 
-          <Card 
+          <Card
             className="glass-card border-0 cursor-pointer hover:scale-[1.02] transition-transform"
             onClick={() => setMode('join')}
           >
@@ -181,7 +181,7 @@ export default function Teams() {
         <div className="p-4 rounded-xl bg-warning/10 border border-warning/20">
           <p className="text-sm text-center text-warning-foreground">
             ⚠️ Team features require backend integration.
-            Enable Lovable Cloud for team creation and battles.
+            Create teams and battle together.
           </p>
         </div>
 
