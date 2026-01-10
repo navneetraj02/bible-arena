@@ -57,7 +57,8 @@ export function useUserStats(uid: string | undefined) {
         return () => unsubscribe();
     }, [uid]);
 
-    const updateUserStats = async (newProgress: UserProgress, isWin: boolean = false) => {
+    // For standard quiz (overwrites progress based on local calculation)
+    const updateUserStats = async (newProgress: UserProgress) => {
         if (!uid) return;
 
         const userRef = doc(db, 'users', uid);
@@ -71,22 +72,42 @@ export function useUserStats(uid: string | undefined) {
             lastPlayed: new Date()
         };
 
-        if (isWin) {
-            updates.quizzesWon = increment(1);
-        }
-
         try {
             // Check if doc exists first to avoid errors with increment on non-existent doc if race condition
             const docSnap = await getDoc(userRef);
             if (docSnap.exists()) {
                 await updateDoc(userRef, updates);
             } else {
-                await setDoc(userRef, { ...DEFAULT_STATS, ...updates, quizzesWon: isWin ? 1 : 0 });
+                await setDoc(userRef, {
+                    ...DEFAULT_STATS,
+                    ...updates,
+                });
             }
         } catch (error) {
             console.error("Error updating user stats:", error);
         }
     };
 
-    return { stats, loading, updateUserStats };
+    // New: For multiplayer (incremental updates)
+    const updateMultiplayerStats = async (scoreToAdd: number, result: 'win' | 'loss' | 'draw') => {
+        if (!uid) return;
+        const userRef = doc(db, 'users', uid);
+
+        const updates: any = {
+            totalScore: increment(scoreToAdd),
+            totalQuestions: increment(10), // Assuming 10 questions per game
+            lastPlayed: new Date()
+        };
+
+        if (result === 'win') updates.quizzesWon = increment(1);
+        if (result === 'loss') updates.quizzesLost = increment(1);
+
+        try {
+            await setDoc(userRef, updates, { merge: true });
+        } catch (error) {
+            console.error("Error updating MP stats:", error);
+        }
+    };
+
+    return { stats, loading, updateUserStats, updateMultiplayerStats };
 }

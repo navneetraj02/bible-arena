@@ -206,7 +206,16 @@ export default function Profile() {
                             <Star className="w-5 h-5 text-blue-500" />
                         </div>
                         <span className="text-2xl font-bold">{stats.quizzesWon}</span>
-                        <span className="text-xs text-muted-foreground uppercase tracking-wider">Quizzes Won</span>
+                        <span className="text-xs text-muted-foreground uppercase tracking-wider">Won</span>
+                    </CardContent>
+                </Card>
+                <Card className="glass-card border-primary/10">
+                    <CardContent className="p-4 flex flex-col items-center justify-center text-center space-y-1">
+                        <div className="p-2 rounded-full bg-red-500/10 mb-1">
+                            <X className="w-5 h-5 text-red-500" />
+                        </div>
+                        <span className="text-2xl font-bold">{stats.quizzesLost || 0}</span>
+                        <span className="text-xs text-muted-foreground uppercase tracking-wider">Lost</span>
                     </CardContent>
                 </Card>
                 <Card className="glass-card border-primary/10">
