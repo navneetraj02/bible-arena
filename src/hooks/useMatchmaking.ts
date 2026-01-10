@@ -49,16 +49,23 @@ export function useMatchmaking() {
             const q = query(
                 matchesRef,
                 where('status', '==', 'waiting'),
-                limit(20) // Fetch a few to find a valid one
+                limit(50) // Fetch more to filter stales
             );
 
             const querySnapshot = await getDocs(q);
             let foundMatchDoc = null;
 
-            // Find a match that isn't our own
+            // Filter logic:
+            // 1. Not my own match
+            // 2. Created within last 60 seconds (fresh)
+            const now = Date.now();
+
             for (const doc of querySnapshot.docs) {
                 const data = doc.data();
-                if (data.player1.uid !== uid) {
+                const createdMs = data.createdAt?.toMillis?.() || 0; // Handle Firestore timestamp
+                const isFresh = (now - createdMs) < 60000; // 1 minute
+
+                if (data.player1.uid !== uid && isFresh) {
                     foundMatchDoc = doc;
                     break;
                 }

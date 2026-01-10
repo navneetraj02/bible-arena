@@ -8,8 +8,8 @@ export function useOnlineCount() {
     useEffect(() => {
         async function fetchCount() {
             try {
-                // Count users online in the last 5 minutes
-                const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+                // Count users online in the last 2 minutes (tighter window)
+                const fiveMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
                 const activeThreshold = Timestamp.fromDate(fiveMinutesAgo);
 
                 const usersRef = collection(db, 'users');
