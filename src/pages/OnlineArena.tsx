@@ -6,16 +6,21 @@ import { Globe, Search, Users, Zap, ArrowLeft, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import logo from '@/assets/logo.png';
 
+import { useMatchmaking } from '@/hooks/useMatchmaking';
+import { useAuth } from '@/hooks/useAuth';
+import { useOnlineCount } from '@/hooks/useOnlineCount';
+
 export default function OnlineArena() {
   const [playerName, setPlayerName] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
+  const { user } = useAuth();
+  const { findMatch, isSearching, cancelSearch } = useMatchmaking();
+  const onlineCount = useOnlineCount();
 
   const handleFindMatch = () => {
-    if (!playerName.trim()) {
+    if (!playerName.trim() || !user) {
       return;
     }
-    setIsSearching(true);
-    // This would connect to a real matchmaking service with backend
+    findMatch(user.uid, playerName);
   };
 
   if (isSearching) {
@@ -26,7 +31,7 @@ export default function OnlineArena() {
             <div className="w-24 h-24 rounded-full border-4 border-primary/30 border-t-primary animate-spin mx-auto" />
             <Globe className="w-10 h-10 text-primary absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
           </div>
-          
+
           <div>
             <h2 className="text-xl font-bold text-foreground">Finding Opponent...</h2>
             <p className="text-muted-foreground mt-2">
@@ -41,7 +46,7 @@ export default function OnlineArena() {
             </p>
           </div>
 
-          <Button variant="ghost" onClick={() => setIsSearching(false)}>
+          <Button variant="ghost" onClick={cancelSearch}>
             Cancel Search
           </Button>
         </div>
@@ -66,7 +71,7 @@ export default function OnlineArena() {
           <CardContent className="p-6">
             <div className="flex justify-around text-center">
               <div>
-                <div className="text-2xl font-bold text-primary">0</div>
+                <div className="text-2xl font-bold text-primary">{onlineCount}</div>
                 <div className="text-xs text-muted-foreground">Online Now</div>
               </div>
               <div className="w-px bg-border" />
@@ -115,7 +120,7 @@ export default function OnlineArena() {
         {/* Game Modes */}
         <div className="space-y-3">
           <h3 className="font-semibold text-foreground">Battle Modes</h3>
-          
+
           <Card className="glass-card border-0 opacity-60">
             <CardContent className="p-4 flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl gradient-gold flex items-center justify-center shrink-0">

@@ -13,6 +13,7 @@ import OnlineArena from "./pages/OnlineArena";
 import Teams from "./pages/Teams";
 import Profile from "./pages/Profile";
 import Auth from "./pages/Auth";
+import OnlineGame from "./pages/OnlineGame";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
               <Route path="/teams" element={<Teams />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/game/:matchId" element={<OnlineGame />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
