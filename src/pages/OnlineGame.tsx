@@ -49,234 +49,213 @@ export default function OnlineGame() {
 
     // Update Stats on Finish
     useEffect(() => {
-        setStatsUpdated(true);
+        if (match?.status === 'finished' && !statsUpdated && user && match[currentPlayer]) {
+            setStatsUpdated(true);
+            const myScore = match[currentPlayer].score;
+            const oppScore = match[opponent]?.score || 0;
+            const isWinner = myScore > oppScore;
+            const isDraw = myScore === oppScore;
+            const result = isWinner ? 'win' : isDraw ? 'draw' : 'loss';
+
+            console.log("Updating stats:", { myScore, result });
+            updateMultiplayerStats(myScore, result);
+        }
+    }, [match?.status, statsUpdated, user, currentPlayer, opponent, match, updateMultiplayerStats]);
+
+    const [timeLeft, setTimeLeft] = useState(10);
+
+    // Timer logic
+    useEffect(() => {
+        if (!match || match.status !== 'playing' || hasAnswered) return;
+
+        const timer = setInterval(() => {
+            setTimeLeft((prev) => {
+                if (prev <= 1) {
+                    handleAnswer(-1); // Auto-submit wrong/timeout
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [match?.currentQuestionIndex, match?.status, hasAnswered]);
+
+    // Reset timer trigger
+    useEffect(() => {
+        setTimeLeft(10);
+        setHasAnswered(false);
+        setSelectedAnswer(null);
+    }, [match?.currentQuestionIndex]);
+
+    // Next Question Orchestrator (Only Player 1 runs this)
+    useEffect(() => {
+        if (!match || match.status !== 'playing') return;
+
+        const p1Answer = match.player1?.currentAnswer;
+        const p2Answer = match.player2?.currentAnswer;
+
+        if (p1Answer !== null && p1Answer !== undefined && p2Answer !== null && p2Answer !== undefined) {
+            // Both have answered
+            if (user.uid === match.player1.uid) {
+                const timeoutId = setTimeout(async () => {
+                    const matchRef = doc(db, 'matches', match.id);
+                    const nextIndex = (match.currentQuestionIndex || 0) + 1;
+
+                    if (nextIndex >= match.questions.length) {
+                        await updateDoc(matchRef, {
+                            status: 'finished',
+                            [`player1.currentAnswer`]: null,
+                            [`player2.currentAnswer`]: null
+                        });
+                    } else {
+                        await updateDoc(matchRef, {
+                            currentQuestionIndex: nextIndex,
+                            [`player1.currentAnswer`]: null,
+                            [`player2.currentAnswer`]: null
+                        });
+                    }
+                }, 2000);
+                return () => clearTimeout(timeoutId);
+            }
+        }
+    }, [match?.player1?.currentAnswer, match?.player2?.currentAnswer, user?.uid]); // Watch answers
+
+    // Handle answering
+    const handleAnswer = async (index: number) => {
+        if (!match || hasAnswered || !user) return;
+
+        // Optimistic update
+        setSelectedAnswer(index);
+        setHasAnswered(true);
+
+        const isCorrect = index === currentQuestion.correctAnswer;
+        const points = isCorrect ? difficultyPoints[currentQuestion.difficulty] : 0;
+
+        const matchRef = doc(db, 'matches', match.id);
+
+        // Update player score and answer status
+        await updateDoc(matchRef, {
+            [`${currentPlayer}.score`]: increment(points),
+            [`${currentPlayer}.currentAnswer`]: index
+        });
+    };
+
+    // Reset local state when question changes
+    // (Handled by timer reset effect above)
+
+
+    if (!match || !user) return (
+        <div className="min-h-screen flex items-center justify-center">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+    );
+
+    if (match.status === 'waiting') {
+        return (
+            <div className="min-h-screen bg-background px-4 flex flex-col items-center justify-center space-y-6">
+                <div className="relative">
+                    <div className="w-24 h-24 rounded-full border-4 border-primary/30 border-t-primary animate-spin mx-auto" />
+                    <Sword className="w-10 h-10 text-primary absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+                </div>
+                <div className="text-center">
+                    <h2 className="text-2xl font-bold">Waiting for Opponent...</h2>
+                    <p className="text-muted-foreground">Share the game ID or wait for a random match</p>
+                </div>
+                <Button variant="outline" onClick={() => navigate('/online')}>Cancel</Button>
+            </div>
+        );
+    }
+
+    if (match.status === 'finished') {
         const myScore = match[currentPlayer].score;
         const oppScore = match[opponent]?.score || 0;
         const isWinner = myScore > oppScore;
         const isDraw = myScore === oppScore;
-        const result = isWinner ? 'win' : isDraw ? 'draw' : 'loss';
 
-        // Calculate progress (just adding score for now)
-        // Ideally we should merge with existing stats but we don't have them here easily without refetching.
-        // For now, let's just increment score/win.
-        // Wait! updateUserStats replaces checks entire object. We need to be careful.
-        // Actually updateUserStats in useUserStats merges updates.
-        // But it expects a "UserProgress" object.
+        return (
+            <div className="min-h-screen bg-background px-4 flex flex-col items-center justify-center space-y-6">
+                <Trophy className={cn("w-20 h-20", isWinner ? "text-yellow-500" : "text-muted-foreground")} />
+                <h1 className="text-4xl font-bold">{isWinner ? "VICTORY!" : isDraw ? "DRAW!" : "DEFEAT"}</h1>
 
-        // The current hook implementation replaces totalScore with newProgress.totalScore.
-        // That is wrong for multiplayer accumulation.
-        // FIX: Let's assume we just want to increment win/loss and maybe score.
-        // We will modify useUserStats to handle partial updates or we just pass dummy progress for score
-        // and let the hook handle the increment logic we added.
+                <div className="flex gap-8 text-center">
+                    <div>
+                        <div className="text-sm text-muted-foreground">You</div>
+                        <div className="text-3xl font-bold text-primary">{myScore}</div>
+                    </div>
+                    <div>
+                        <div className="text-sm text-muted-foreground">Opponent</div>
+                        <div className="text-3xl font-bold text-destructive">{oppScore}</div>
+                    </div>
+                </div>
 
-        // Correction: The hook uses `updates` object.
-        // If we pass `totalScore: increment(myScore)` it might work if typed as any.
-        // Let's rely on the fact that we changed updateUserStats to accept result type.
-        // We need to pass valid UserProgress though.
-
-        // Actually, looking at useUserStats again:
-        // It does: totalScore: newProgress.totalScore
-        // It OVERWRITES. This is bad.
-        // I need to fix useUserStats to support INCREMENTING score first.
-    }
-        }
-        // updateStatsAsync();
-    }, [match?.status, statsUpdated, user, currentPlayer, opponent, match]);
-
-const [timeLeft, setTimeLeft] = useState(10);
-
-// Timer logic
-useEffect(() => {
-    if (!match || match.status !== 'playing' || hasAnswered) return;
-
-    const timer = setInterval(() => {
-        setTimeLeft((prev) => {
-            if (prev <= 1) {
-                handleAnswer(-1); // Auto-submit wrong/timeout
-                return 0;
-            }
-            return prev - 1;
-        });
-    }, 1000);
-
-    return () => clearInterval(timer);
-}, [match?.currentQuestionIndex, match?.status, hasAnswered]);
-
-// Reset timer trigger
-useEffect(() => {
-    setTimeLeft(10);
-    setHasAnswered(false);
-    setSelectedAnswer(null);
-}, [match?.currentQuestionIndex]);
-
-// Next Question Orchestrator (Only Player 1 runs this)
-useEffect(() => {
-    if (!match || match.status !== 'playing') return;
-
-    const p1Answer = match.player1?.currentAnswer;
-    const p2Answer = match.player2?.currentAnswer;
-
-    if (p1Answer !== null && p1Answer !== undefined && p2Answer !== null && p2Answer !== undefined) {
-        // Both have answered
-        if (user.uid === match.player1.uid) {
-            const timeoutId = setTimeout(async () => {
-                const matchRef = doc(db, 'matches', match.id);
-                const nextIndex = (match.currentQuestionIndex || 0) + 1;
-
-                if (nextIndex >= match.questions.length) {
-                    await updateDoc(matchRef, {
-                        status: 'finished',
-                        [`player1.currentAnswer`]: null,
-                        [`player2.currentAnswer`]: null
-                    });
-                } else {
-                    await updateDoc(matchRef, {
-                        currentQuestionIndex: nextIndex,
-                        [`player1.currentAnswer`]: null,
-                        [`player2.currentAnswer`]: null
-                    });
-                }
-            }, 2000);
-            return () => clearTimeout(timeoutId);
-        }
-    }
-}, [match?.player1?.currentAnswer, match?.player2?.currentAnswer, user?.uid]); // Watch answers
-
-// Handle answering
-const handleAnswer = async (index: number) => {
-    if (!match || hasAnswered || !user) return;
-
-    // Optimistic update
-    setSelectedAnswer(index);
-    setHasAnswered(true);
-
-    const isCorrect = index === currentQuestion.correctAnswer;
-    const points = isCorrect ? difficultyPoints[currentQuestion.difficulty] : 0;
-
-    const matchRef = doc(db, 'matches', match.id);
-
-    // Update player score and answer status
-    await updateDoc(matchRef, {
-        [`${currentPlayer}.score`]: increment(points),
-        [`${currentPlayer}.currentAnswer`]: index
-    });
-};
-
-// Reset local state when question changes
-// (Handled by timer reset effect above)
-
-
-if (!match || !user) return (
-    <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-    </div>
-);
-
-if (match.status === 'waiting') {
-    return (
-        <div className="min-h-screen bg-background px-4 flex flex-col items-center justify-center space-y-6">
-            <div className="relative">
-                <div className="w-24 h-24 rounded-full border-4 border-primary/30 border-t-primary animate-spin mx-auto" />
-                <Sword className="w-10 h-10 text-primary absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+                <Button onClick={() => navigate('/online')}>Back to Arena</Button>
             </div>
-            <div className="text-center">
-                <h2 className="text-2xl font-bold">Waiting for Opponent...</h2>
-                <p className="text-muted-foreground">Share the game ID or wait for a random match</p>
-            </div>
-            <Button variant="outline" onClick={() => navigate('/online')}>Cancel</Button>
-        </div>
-    );
-}
-
-if (match.status === 'finished') {
-    const myScore = match[currentPlayer].score;
-    const oppScore = match[opponent]?.score || 0;
-    const isWinner = myScore > oppScore;
-    const isDraw = myScore === oppScore;
+        );
+    }
 
     return (
-        <div className="min-h-screen bg-background px-4 flex flex-col items-center justify-center space-y-6">
-            <Trophy className={cn("w-20 h-20", isWinner ? "text-yellow-500" : "text-muted-foreground")} />
-            <h1 className="text-4xl font-bold">{isWinner ? "VICTORY!" : isDraw ? "DRAW!" : "DEFEAT"}</h1>
-
-            <div className="flex gap-8 text-center">
-                <div>
-                    <div className="text-sm text-muted-foreground">You</div>
-                    <div className="text-3xl font-bold text-primary">{myScore}</div>
+        <div className="min-h-screen bg-background px-4 py-6">
+            {/* Header / Scoreboard */}
+            <div className="flex justify-between items-center mb-8 bg-card/50 p-4 rounded-xl backdrop-blur-sm border border-border/50 relative">
+                {/* Game ID for debugging */}
+                <div className="absolute -top-6 left-0 text-xs text-muted-foreground w-full text-center">
+                    Game ID: {matchId?.slice(0, 4)}
                 </div>
-                <div>
-                    <div className="text-sm text-muted-foreground">Opponent</div>
-                    <div className="text-3xl font-bold text-destructive">{oppScore}</div>
+
+                <div className="flex flex-col items-start">
+                    <div className="flex items-center gap-2 text-sm font-medium">
+                        <User className="w-4 h-4" /> You
+                    </div>
+                    <div className="text-2xl font-bold text-primary">{match[currentPlayer].score}</div>
+                </div>
+
+                <div className="flex flex-col items-center">
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Round</span>
+                    <span className="text-xl font-bold">{currentQIndex + 1} / {match.questions.length}</span>
+                    <div className={cn("text-lg font-mono font-bold mt-1", timeLeft <= 3 ? "text-red-500 animate-pulse" : "text-primary")}>
+                        00:{timeLeft.toString().padStart(2, '0')}
+                    </div>
+                </div>
+
+                <div className="flex flex-col items-end">
+                    <div className="flex items-center gap-2 text-sm font-medium">
+                        Opponent <User className="w-4 h-4" />
+                    </div>
+                    <div className="text-2xl font-bold text-destructive">{match[opponent]?.score || 0}</div>
+                    {match[opponent]?.currentAnswer !== null && match[opponent]?.currentAnswer !== undefined && (
+                        <span className="text-xs text-green-500 animate-pulse">Answered!</span>
+                    )}
                 </div>
             </div>
 
-            <Button onClick={() => navigate('/online')}>Back to Arena</Button>
+            {/* Question Area */}
+            <Card className="glass-card border-0 mb-6">
+                <CardContent className="p-6">
+                    <h2 className="text-xl font-bold leading-relaxed mb-6">{currentQuestion.question}</h2>
+                    <div className="space-y-3">
+                        {currentQuestion.options.map((option: string, i: number) => (
+                            <QuizOption
+                                key={i}
+                                index={i}
+                                option={option}
+                                isSelected={selectedAnswer === i}
+                                isCorrect={hasAnswered && currentQuestion.correctAnswer === i}
+                                showResult={hasAnswered && match[opponent]?.currentAnswer !== null}
+                                disabled={hasAnswered}
+                                onSelect={() => handleAnswer(i)}
+                            />
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Waiting indicator */}
+            {hasAnswered && match[opponent]?.currentAnswer == null && (
+                <div className="text-center animate-pulse text-muted-foreground">
+                    Waiting for opponent to answer...
+                </div>
+            )}
         </div>
     );
-}
-
-return (
-    <div className="min-h-screen bg-background px-4 py-6">
-        {/* Header / Scoreboard */}
-        <div className="flex justify-between items-center mb-8 bg-card/50 p-4 rounded-xl backdrop-blur-sm border border-border/50 relative">
-            {/* Game ID for debugging */}
-            <div className="absolute -top-6 left-0 text-xs text-muted-foreground w-full text-center">
-                Game ID: {matchId?.slice(0, 4)}
-            </div>
-
-            <div className="flex flex-col items-start">
-                <div className="flex items-center gap-2 text-sm font-medium">
-                    <User className="w-4 h-4" /> You
-                </div>
-                <div className="text-2xl font-bold text-primary">{match[currentPlayer].score}</div>
-            </div>
-
-            <div className="flex flex-col items-center">
-                <span className="text-xs text-muted-foreground uppercase tracking-wider">Round</span>
-                <span className="text-xl font-bold">{currentQIndex + 1} / {match.questions.length}</span>
-                <div className={cn("text-lg font-mono font-bold mt-1", timeLeft <= 3 ? "text-red-500 animate-pulse" : "text-primary")}>
-                    00:{timeLeft.toString().padStart(2, '0')}
-                </div>
-            </div>
-
-            <div className="flex flex-col items-end">
-                <div className="flex items-center gap-2 text-sm font-medium">
-                    Opponent <User className="w-4 h-4" />
-                </div>
-                <div className="text-2xl font-bold text-destructive">{match[opponent]?.score || 0}</div>
-                {match[opponent]?.currentAnswer !== null && match[opponent]?.currentAnswer !== undefined && (
-                    <span className="text-xs text-green-500 animate-pulse">Answered!</span>
-                )}
-            </div>
-        </div>
-
-        {/* Question Area */}
-        <Card className="glass-card border-0 mb-6">
-            <CardContent className="p-6">
-                <h2 className="text-xl font-bold leading-relaxed mb-6">{currentQuestion.question}</h2>
-                <div className="space-y-3">
-                    {currentQuestion.options.map((option: string, i: number) => (
-                        <QuizOption
-                            key={i}
-                            index={i}
-                            option={option}
-                            isSelected={selectedAnswer === i}
-                            isCorrect={hasAnswered && currentQuestion.correctAnswer === i}
-                            showResult={hasAnswered && match[opponent]?.currentAnswer !== null}
-                            disabled={hasAnswered}
-                            onSelect={() => handleAnswer(i)}
-                        />
-                    ))}
-                </div>
-            </CardContent>
-        </Card>
-
-        {/* Waiting indicator */}
-        {hasAnswered && match[opponent]?.currentAnswer == null && (
-            <div className="text-center animate-pulse text-muted-foreground">
-                Waiting for opponent to answer...
-            </div>
-        )}
-    </div>
-);
 }
