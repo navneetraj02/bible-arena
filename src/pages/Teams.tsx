@@ -89,11 +89,7 @@ export default function Teams() {
                 {mode === 'create' ? 'Create Team' : 'Join Team'}
               </Button>
 
-              <div className="p-4 rounded-xl bg-warning/10 border border-warning/20">
-                <p className="text-sm text-center text-warning-foreground">
-                  ⚠️ Team features require backend integration.
-                </p>
-              </div>
+
             </CardContent>
           </Card>
         </div>
@@ -178,12 +174,7 @@ export default function Teams() {
           </CardContent>
         </Card>
 
-        <div className="p-4 rounded-xl bg-warning/10 border border-warning/20">
-          <p className="text-sm text-center text-warning-foreground">
-            ⚠️ Team features require backend integration.
-            Create teams and battle together.
-          </p>
-        </div>
+
 
         <Link to="/">
           <Button variant="ghost" className="w-full">

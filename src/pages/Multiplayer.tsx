@@ -114,9 +114,7 @@ export default function Multiplayer() {
                 <p className="text-muted-foreground text-sm">
                   Waiting for other players to join...
                 </p>
-                <p className="text-xs text-muted-foreground mt-2">
-                  ⚠️ Real-time multiplayer requires a backend connection
-                </p>
+
               </div>
             </CardContent>
           </Card>
@@ -233,12 +231,7 @@ export default function Multiplayer() {
           </Card>
         </div>
 
-        <div className="p-4 rounded-xl bg-warning/10 border border-warning/20">
-          <p className="text-sm text-center text-warning-foreground">
-            ⚠️ Real-time multiplayer requires backend integration.
-            Enable Lovable Cloud to play with friends online.
-          </p>
-        </div>
+
 
         <Link to="/">
           <Button variant="ghost" className="w-full">

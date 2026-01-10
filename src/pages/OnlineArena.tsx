@@ -39,12 +39,7 @@ export default function OnlineArena() {
             </p>
           </div>
 
-          <div className="p-4 rounded-xl bg-warning/10 border border-warning/20">
-            <p className="text-sm text-warning-foreground">
-              ⚠️ Online matchmaking requires backend integration.
-              Enable Lovable Cloud for real-time multiplayer.
-            </p>
-          </div>
+
 
           <Button variant="ghost" onClick={cancelSearch}>
             Cancel Search
@@ -161,12 +156,7 @@ export default function OnlineArena() {
           </Card>
         </div>
 
-        <div className="p-4 rounded-xl bg-warning/10 border border-warning/20">
-          <p className="text-sm text-center text-warning-foreground">
-            ⚠️ Online features require backend integration.
-            Join real-time multiplayer battles and global leaderboards.
-          </p>
-        </div>
+
 
         <Link to="/">
           <Button variant="ghost" className="w-full">
