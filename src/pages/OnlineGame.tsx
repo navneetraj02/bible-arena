@@ -150,7 +150,12 @@ export default function OnlineGame() {
     return (
         <div className="min-h-screen bg-background px-4 py-6">
             {/* Header / Scoreboard */}
-            <div className="flex justify-between items-center mb-8 bg-card/50 p-4 rounded-xl backdrop-blur-sm border border-border/50">
+            <div className="flex justify-between items-center mb-8 bg-card/50 p-4 rounded-xl backdrop-blur-sm border border-border/50 relative">
+                {/* Game ID for debugging */}
+                <div className="absolute -top-6 left-0 text-xs text-muted-foreground w-full text-center">
+                    Game ID: {matchId?.slice(0, 4)}
+                </div>
+
                 <div className="flex flex-col items-start">
                     <div className="flex items-center gap-2 text-sm font-medium">
                         <User className="w-4 h-4" /> You

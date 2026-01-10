@@ -1,13 +1,11 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import BottomNav from "./components/layout/BottomNav";
-import Header from "./components/layout/Header";
+import { BottomNav } from "@/components/layout/BottomNav";
+import { Header } from "@/components/layout/Header";
+
 import Index from "./pages/Index";
 import Quiz from "./pages/Quiz";
 import Leaderboard from "./pages/Leaderboard";
