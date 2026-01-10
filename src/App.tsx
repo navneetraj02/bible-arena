@@ -15,8 +15,30 @@ import Profile from "./pages/Profile";
 import Auth from "./pages/Auth";
 import OnlineGame from "./pages/OnlineGame";
 import NotFound from "./pages/NotFound";
+import { usePresence } from "./hooks/usePresence";
 
 const queryClient = new QueryClient();
+
+const AppContent = () => {
+  usePresence(); // Start heartbeat
+  return (
+    <div className="min-h-screen pb-16 md:pb-0">
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/quiz" element={<Quiz />} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
+        <Route path="/chat" element={<OnlineArena />} />
+        <Route path="/online" element={<OnlineArena />} />
+        <Route path="/multiplayer" element={<Multiplayer />} />
+        <Route path="/teams" element={<Teams />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/game/:matchId" element={<OnlineGame />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </div>
+  );
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -24,21 +46,10 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <div className="min-h-screen flex flex-col bg-background">
-          <main className="flex-1 pb-nav">
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/quiz" element={<Quiz />} />
-              <Route path="/bible" element={<BibleReader />} />
-              <Route path="/leaderboard" element={<Leaderboard />} />
-              <Route path="/multiplayer" element={<Multiplayer />} />
-              <Route path="/online" element={<OnlineArena />} />
-              <Route path="/teams" element={<Teams />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/game/:matchId" element={<OnlineGame />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+        <div className="flex flex-col min-h-screen bg-background">
+          <Header />
+          <main className="flex-1">
+            <AppContent />
           </main>
           <BottomNav />
         </div>
