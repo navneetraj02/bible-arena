@@ -35,6 +35,7 @@ const AppContent = () => {
         <Route path="/teams" element={<Teams />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/auth" element={<Auth />} />
+        <Route path="/bible" element={<BibleReader />} />
         <Route path="/game/:matchId" element={<OnlineGame />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
