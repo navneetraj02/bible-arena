@@ -1,6 +1,20 @@
 import confetti from 'canvas-confetti';
 import { useGameSound } from '@/hooks/useGameSound';
 import { PageTransition } from '@/components/layout/PageTransition';
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { doc, onSnapshot, updateDoc, increment } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { useAuth } from '@/hooks/useAuth';
+import { MatchState } from '@/hooks/useMatchmaking';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { toast } from 'sonner';
+import { Loader2, Trophy, User, Sword } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { QuizOption } from '@/components/quiz/QuizOption';
+import { difficultyPoints } from '@/data/questions';
+import { useUserStats } from '@/hooks/useUserStats';
 
 export default function OnlineGame() {
     const { matchId } = useParams();
