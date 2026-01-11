@@ -2,13 +2,21 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Globe, Search, Users, Zap, ArrowLeft, MapPin } from 'lucide-react';
+import { Globe, Search, Users, Zap, MapPin, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import logo from '@/assets/logo.png';
 
-import { useMatchmaking } from '@/hooks/useMatchmaking';
+import { useMatchmaking, BattleMode } from '@/hooks/useMatchmaking';
 import { useAuth } from '@/hooks/useAuth';
 import { useOnlineCount } from '@/hooks/useOnlineCount';
+import { cn } from '@/lib/utils';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function OnlineArena() {
   const [playerName, setPlayerName] = useState('');
@@ -16,11 +24,16 @@ export default function OnlineArena() {
   const { findMatch, isSearching, cancelSearch } = useMatchmaking();
   const onlineCount = useOnlineCount();
 
+  const [selectedMode, setSelectedMode] = useState<BattleMode>('quick');
+  const [selectedRegion, setSelectedRegion] = useState<string>('global');
+
   const handleFindMatch = () => {
     if (!playerName.trim() || !user) {
       return;
     }
-    findMatch(user.uid, playerName);
+    // Default region to 'global' if not specified, 
+    // but for 'regional' mode ensuring a region is selected is handled by UI/default state
+    findMatch(user.uid, playerName, selectedMode, selectedMode === 'regional' ? selectedRegion : undefined);
   };
 
   if (isSearching) {
@@ -35,11 +48,12 @@ export default function OnlineArena() {
           <div>
             <h2 className="text-xl font-bold text-foreground">Finding Opponent...</h2>
             <p className="text-muted-foreground mt-2">
-              Searching for players worldwide
+              Searching for {selectedMode === 'regional' ? selectedRegion : ''} players
             </p>
+            <div className="mt-2 text-sm px-3 py-1 bg-secondary/20 rounded-full inline-block">
+              Mode: {selectedMode.toUpperCase()}
+            </div>
           </div>
-
-
 
           <Button variant="ghost" onClick={cancelSearch}>
             Cancel Search
@@ -114,36 +128,67 @@ export default function OnlineArena() {
 
         {/* Game Modes */}
         <div className="space-y-3">
-          <h3 className="font-semibold text-foreground">Battle Modes</h3>
+          <h3 className="font-semibold text-foreground">Select Battle Mode</h3>
 
-          <Card className="glass-card border-0 opacity-60">
-            <CardContent className="p-4 flex items-center gap-4">
+          <div
+            className={cn(
+              "glass-card border-2 transition-all cursor-pointer relative overflow-hidden",
+              selectedMode === 'quick' ? "border-primary bg-primary/5" : "border-transparent opacity-80 hover:opacity-100"
+            )}
+            onClick={() => setSelectedMode('quick')}
+          >
+            {selectedMode === 'quick' && (
+              <div className="absolute top-2 right-2 p-1 bg-primary rounded-full">
+                <Check className="w-3 h-3 text-white" />
+              </div>
+            )}
+            <div className="p-4 flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl gradient-gold flex items-center justify-center shrink-0">
                 <Zap className="w-6 h-6 text-white" />
               </div>
               <div className="flex-1">
                 <h4 className="font-semibold text-foreground">Quick Match</h4>
-                <p className="text-xs text-muted-foreground">1v1 • 10 questions • 5 min</p>
+                <p className="text-xs text-muted-foreground">1v1 • 10 questions • Casual</p>
               </div>
-              <span className="text-xs bg-muted px-2 py-1 rounded-full text-muted-foreground">Coming Soon</span>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          <Card className="glass-card border-0 opacity-60">
-            <CardContent className="p-4 flex items-center gap-4">
+          <div
+            className={cn(
+              "glass-card border-2 transition-all cursor-pointer relative overflow-hidden",
+              selectedMode === 'ranked' ? "border-primary bg-primary/5" : "border-transparent opacity-80 hover:opacity-100"
+            )}
+            onClick={() => setSelectedMode('ranked')}
+          >
+            {selectedMode === 'ranked' && (
+              <div className="absolute top-2 right-2 p-1 bg-primary rounded-full">
+                <Check className="w-3 h-3 text-white" />
+              </div>
+            )}
+            <div className="p-4 flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl gradient-success flex items-center justify-center shrink-0">
                 <Users className="w-6 h-6 text-white" />
               </div>
               <div className="flex-1">
                 <h4 className="font-semibold text-foreground">Ranked Match</h4>
-                <p className="text-xs text-muted-foreground">1v1 • 20 questions • Earn ranking</p>
+                <p className="text-xs text-muted-foreground">1v1 • 20 questions • Competitive</p>
               </div>
-              <span className="text-xs bg-muted px-2 py-1 rounded-full text-muted-foreground">Coming Soon</span>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          <Card className="glass-card border-0 opacity-60">
-            <CardContent className="p-4 flex items-center gap-4">
+          <div
+            className={cn(
+              "glass-card border-2 transition-all cursor-pointer relative overflow-hidden",
+              selectedMode === 'regional' ? "border-primary bg-primary/5" : "border-transparent opacity-80 hover:opacity-100"
+            )}
+            onClick={() => setSelectedMode('regional')}
+          >
+            {selectedMode === 'regional' && (
+              <div className="absolute top-2 right-2 p-1 bg-primary rounded-full">
+                <Check className="w-3 h-3 text-white" />
+              </div>
+            )}
+            <div className="p-4 flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl gradient-primary flex items-center justify-center shrink-0">
                 <MapPin className="w-6 h-6 text-white" />
               </div>
@@ -151,12 +196,28 @@ export default function OnlineArena() {
                 <h4 className="font-semibold text-foreground">Regional Battle</h4>
                 <p className="text-xs text-muted-foreground">Play against nearby players</p>
               </div>
-              <span className="text-xs bg-muted px-2 py-1 rounded-full text-muted-foreground">Coming Soon</span>
-            </CardContent>
-          </Card>
+            </div>
+
+            {/* Region Selector inside card if active */}
+            {selectedMode === 'regional' && (
+              <div className="px-4 pb-4 animate-in slide-in-from-top-2 fade-in">
+                <Select value={selectedRegion} onValueChange={setSelectedRegion}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select Region" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="asia">Asia</SelectItem>
+                    <SelectItem value="north_america">North America</SelectItem>
+                    <SelectItem value="europe">Europe</SelectItem>
+                    <SelectItem value="africa">Africa</SelectItem>
+                    <SelectItem value="south_america">South America</SelectItem>
+                    <SelectItem value="australia">Australia</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </div>
         </div>
-
-
 
         <Link to="/">
           <Button variant="ghost" className="w-full">

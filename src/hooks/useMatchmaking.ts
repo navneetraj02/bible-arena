@@ -16,6 +16,8 @@ import { useNavigate } from 'react-router-dom';
 import { getRandomQuestions } from '@/data/questions';
 import { toast } from 'sonner';
 
+export type BattleMode = 'quick' | 'ranked' | 'regional';
+
 export interface MatchPlayer {
     uid: string;
     name: string;
@@ -29,6 +31,8 @@ export interface MatchState {
     player1: MatchPlayer;
     player2: MatchPlayer | null;
     status: 'waiting' | 'playing' | 'finished';
+    mode: BattleMode;
+    region?: string;
     questions: any[]; // Array of questions
     currentQuestionIndex: number;
     createdAt: any;
@@ -39,18 +43,26 @@ export function useMatchmaking() {
     const [isSearching, setIsSearching] = useState(false);
     const navigate = useNavigate();
 
-    const findMatch = async (uid: string, playerName: string) => {
+    const findMatch = async (uid: string, playerName: string, mode: BattleMode = 'quick', region?: string) => {
         setIsSearching(true);
 
         try {
             // 1. Search for an existing waiting match
             // Note: We avoid '!=' queries to prevent needing composite indices
             const matchesRef = collection(db, 'matches');
-            const q = query(
-                matchesRef,
+
+            // Build query based on mode and region
+            let qConstraints = [
                 where('status', '==', 'waiting'),
-                limit(50) // Fetch more to filter stales
-            );
+                where('mode', '==', mode),
+                limit(50)
+            ];
+
+            if (mode === 'regional' && region) {
+                qConstraints.push(where('region', '==', region));
+            }
+
+            const q = query(matchesRef, ...qConstraints);
 
             const querySnapshot = await getDocs(q);
             let foundMatchDoc = null;
@@ -89,7 +101,11 @@ export function useMatchmaking() {
                 navigate(`/game/${matchId}`);
             } else {
                 // create new match
-                const questions = getRandomQuestions(10, 'all', 'all'); // 10 mixed questions
+                let questionCount = 10;
+                if (mode === 'ranked') questionCount = 20;
+                if (mode === 'regional') questionCount = 15;
+
+                const questions = getRandomQuestions(questionCount, 'all', 'all');
 
                 // Sanitize questions for Firestore (remove undefined/functions)
                 const sanitizedQuestions = questions.map(q => ({
@@ -112,6 +128,8 @@ export function useMatchmaking() {
                     },
                     player2: null,
                     status: 'waiting',
+                    mode,
+                    ...(region && { region }),
                     questions: sanitizedQuestions,
                     currentQuestionIndex: 0,
                     createdAt: serverTimestamp()

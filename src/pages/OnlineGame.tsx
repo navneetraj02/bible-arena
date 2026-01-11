@@ -198,9 +198,21 @@ export default function OnlineGame() {
         <div className="min-h-screen bg-background px-4 py-6">
             {/* Header / Scoreboard */}
             <div className="flex justify-between items-center mb-8 bg-card/50 p-4 rounded-xl backdrop-blur-sm border border-border/50 relative">
-                {/* Game ID for debugging */}
-                <div className="absolute -top-6 left-0 text-xs text-muted-foreground w-full text-center">
-                    Game ID: {matchId?.slice(0, 4)}
+                {/* Game ID and Mode */}
+                <div className="absolute -top-8 left-0 w-full text-center flex flex-col items-center">
+                    <div className="text-xs text-muted-foreground">
+                        Game ID: {matchId?.slice(0, 4)}
+                    </div>
+                    <div className="flex gap-2 mt-1">
+                        <span className="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                            {match.mode}
+                        </span>
+                        {match.region && (
+                            <span className="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full bg-secondary/10 text-secondary border border-secondary/20">
+                                {match.region}
+                            </span>
+                        )}
+                    </div>
                 </div>
 
                 <div className="flex flex-col items-start">
@@ -210,7 +222,7 @@ export default function OnlineGame() {
                     <div className="text-2xl font-bold text-primary">{match[currentPlayer].score}</div>
                 </div>
 
-                <div className="flex flex-col items-center">
+                <div className="flex flex-col items-center pt-2">
                     <span className="text-xs text-muted-foreground uppercase tracking-wider">Round</span>
                     <span className="text-xl font-bold">{currentQIndex + 1} / {match.questions.length}</span>
                     <div className={cn("text-lg font-mono font-bold mt-1", timeLeft <= 3 ? "text-red-500 animate-pulse" : "text-primary")}>
