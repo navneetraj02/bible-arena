@@ -14,7 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+        sans: ['Rajdhani', 'system-ui', 'sans-serif'],
+        serif: ['Cinzel', 'serif'],
       },
       colors: {
         border: "hsl(var(--border))",

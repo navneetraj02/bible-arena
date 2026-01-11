@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,70 +6,57 @@
 
 @layer base {
   :root {
-    /* Warm golden brown theme */
-    --background: 30 25% 96%;
-    --foreground: 25 30% 12%;
+    /* Divine Epic Theme - Dark "Void" Default */
+    --background: 260 30% 12%;
+    /* Deep Purple/Blue Void */
+    --foreground: 38 40% 96%;
+    /* Off-white parchment */
 
-    --card: 35 30% 98%;
-    --card-foreground: 25 30% 12%;
+    --card: 260 25% 15%;
+    --card-foreground: 38 40% 96%;
 
-    --popover: 35 30% 98%;
-    --popover-foreground: 25 30% 12%;
+    --popover: 260 25% 15%;
+    --popover-foreground: 38 40% 96%;
 
-    /* Golden primary */
-    --primary: 38 90% 45%;
-    --primary-foreground: 0 0% 100%;
+    /* Divine Gold Primary */
+    --primary: 45 100% 50%;
+    /* Pure Gold */
+    --primary-foreground: 260 30% 12%;
 
-    /* Warm brown secondary */
-    --secondary: 25 60% 35%;
-    --secondary-foreground: 0 0% 100%;
+    /* Mystic Blue Secondary */
+    --secondary: 220 80% 60%;
+    --secondary-foreground: 260 30% 12%;
 
-    --muted: 35 20% 90%;
-    --muted-foreground: 25 15% 45%;
+    --muted: 260 20% 25%;
+    --muted-foreground: 240 10% 70%;
 
     --accent: 45 100% 50%;
-    --accent-foreground: 25 30% 12%;
+    --accent-foreground: 260 30% 12%;
 
-    --destructive: 0 75% 55%;
+    --destructive: 0 85% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 35 25% 85%;
-    --input: 35 25% 85%;
-    --ring: 38 90% 45%;
+    --border: 45 30% 30%;
+    /* Weak gold border */
+    --input: 260 20% 20%;
+    --ring: 45 100% 50%;
 
-    --radius: 1rem;
+    --radius: 0.75rem;
 
-    /* Custom tokens */
-    --gold: 38 90% 50%;
-    --gold-light: 42 100% 60%;
-    --gold-dark: 32 85% 40%;
-    
-    --success: 145 65% 40%;
-    --success-foreground: 0 0% 100%;
-    
-    --warning: 30 100% 55%;
-    --warning-foreground: 25 30% 12%;
+    /* Game Tokens */
+    --gold: 45 100% 50%;
+    --gold-light: 48 100% 70%;
+    --gold-dark: 40 100% 40%;
+
+    --orb-glow: 0 0 20px hsl(45 100% 50% / 0.3);
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(38 90% 50%) 0%, hsl(28 80% 45%) 100%);
-    --gradient-gold: linear-gradient(135deg, hsl(42 100% 55%) 0%, hsl(32 90% 45%) 100%);
-    --gradient-success: linear-gradient(135deg, hsl(145 65% 40%) 0%, hsl(160 60% 45%) 100%);
-    --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%);
-    --gradient-warm: linear-gradient(180deg, hsl(35 30% 98%) 0%, hsl(30 25% 94%) 100%);
+    --gradient-void: linear-gradient(135deg, hsl(260 40% 10%) 0%, hsl(280 35% 15%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(45 100% 50%) 0%, hsl(35 90% 45%) 100%);
+    --gradient-mystic: linear-gradient(135deg, hsl(260 60% 50%) 0%, hsl(220 50% 40%) 100%);
 
     /* Shadows */
-    --shadow-glow: 0 0 40px -10px hsl(38 90% 50% / 0.4);
-    --shadow-gold: 0 0 40px -10px hsl(42 100% 55% / 0.5);
-    --shadow-card: 0 10px 30px -10px hsl(25 30% 12% / 0.1);
-
-    --sidebar-background: 35 30% 98%;
-    --sidebar-foreground: 25 30% 12%;
-    --sidebar-primary: 38 90% 45%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 35 20% 90%;
-    --sidebar-accent-foreground: 25 30% 12%;
-    --sidebar-border: 35 25% 85%;
-    --sidebar-ring: 38 90% 45%;
+    --shadow-game: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
   }
 }
 
@@ -79,172 +66,117 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
-    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    @apply bg-background text-foreground antialiased selection:bg-primary/30;
+    font-family: 'Rajdhani', sans-serif;
+    /* Tech/Game body font */
+    background-image:
+      radial-gradient(circle at 50% 0%, hsl(260 50% 20% / 0.4) 0%, transparent 50%),
+      radial-gradient(circle at 100% 100%, hsl(45 30% 20% / 0.2) 0%, transparent 40%);
+    background-attachment: fixed;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-    font-weight: 700;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Cinzel', serif;
+    /* Epic headers */
+    @apply font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-gold to-gold-light;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   }
 }
 
 @layer components {
-  .glass {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(139, 90, 43, 0.1);
-  }
 
+  /* Game Glass Panel */
   .glass-card {
-    background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,248,240,0.9) 100%);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(139, 90, 43, 0.15);
-    box-shadow: 0 4px 20px -5px rgba(139, 90, 43, 0.1);
+    background: rgba(30, 25, 45, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 215, 0, 0.15);
+    /* Subtle gold border */
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
   }
 
-  .gradient-primary {
-    background: var(--gradient-primary);
+  .glass-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.5), transparent);
+  }
+
+  /* Game Button */
+  .btn-game {
+    @apply relative overflow-hidden transition-all duration-300 transform active:scale-95;
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
   }
 
   .gradient-gold {
     background: var(--gradient-gold);
+    box-shadow: 0 0 15px hsl(45 100% 50% / 0.3);
+    border: 1px solid hsl(45 100% 60%);
   }
 
-  .gradient-success {
-    background: var(--gradient-success);
+  .gradient-gold:hover {
+    box-shadow: 0 0 25px hsl(45 100% 50% / 0.5);
+    filter: brightness(1.1);
   }
 
-  .glow-primary {
-    box-shadow: var(--shadow-glow);
+  .gradient-primary {
+    background: var(--gradient-mystic);
+    border: 1px solid hsl(260 50% 60%);
   }
 
-  .glow-gold {
-    box-shadow: var(--shadow-gold);
+  /* Text Glows */
+  .text-glow-gold {
+    text-shadow: 0 0 10px hsl(45 100% 50% / 0.5);
   }
 
-  .text-gradient {
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  .text-glow-blue {
+    text-shadow: 0 0 10px hsl(220 80% 60% / 0.5);
   }
 
-  .text-gradient-gold {
-    background: var(--gradient-gold);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  /* Floating Animation */
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
   }
 
-  /* Bible reader styling */
-  .bible-text {
-    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-    line-height: 2;
-    letter-spacing: 0.01em;
-  }
-
-  .verse-number {
-    @apply text-xs font-bold text-primary align-super mr-1 opacity-70;
-  }
-
-  /* Animations */
   @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-15px);
+    }
+  }
+
+  /* Pulse Glow */
+  .animate-pulse-glow {
+    animation: pulse-glow 3s infinite;
   }
 
   @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 20px -5px hsl(var(--primary) / 0.5); }
-    50% { box-shadow: 0 0 40px -5px hsl(var(--primary) / 0.8); }
-  }
 
-  @keyframes slide-up {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+    0%,
+    100% {
+      box-shadow: 0 0 15px hsl(45 100% 50% / 0.2);
+    }
 
-  @keyframes slide-in {
-    from { opacity: 0; transform: translateX(-20px); }
-    to { opacity: 1; transform: translateX(0); }
+    50% {
+      box-shadow: 0 0 30px hsl(45 100% 50% / 0.5);
+    }
   }
-
-  @keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  @keyframes bounce-in {
-    0% { transform: scale(0.5); opacity: 0; }
-    60% { transform: scale(1.1); }
-    100% { transform: scale(1); opacity: 1; }
-  }
-
-  @keyframes streak-pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-  }
-
-  @keyframes correct-flash {
-    0% { background-color: hsl(var(--success) / 0.2); }
-    50% { background-color: hsl(var(--success) / 0.4); }
-    100% { background-color: hsl(var(--success) / 0.1); }
-  }
-
-  @keyframes wrong-shake {
-    0%, 100% { transform: translateX(0); }
-    20% { transform: translateX(-8px); }
-    40% { transform: translateX(8px); }
-    60% { transform: translateX(-8px); }
-    80% { transform: translateX(8px); }
-  }
-
-  .animate-float {
-    animation: float 3s ease-in-out infinite;
-  }
-
-  .animate-pulse-glow {
-    animation: pulse-glow 2s ease-in-out infinite;
-  }
-
-  .animate-slide-up {
-    animation: slide-up 0.4s ease-out forwards;
-  }
-
-  .animate-slide-in {
-    animation: slide-in 0.3s ease-out forwards;
-  }
-
-  .animate-fade-in {
-    animation: fade-in 0.3s ease-out forwards;
-  }
-
-  .animate-bounce-in {
-    animation: bounce-in 0.5s ease-out forwards;
-  }
-
-  .animate-streak-pulse {
-    animation: streak-pulse 0.5s ease-out;
-  }
-
-  .animate-correct {
-    animation: correct-flash 0.5s ease-out;
-  }
-
-  .animate-wrong {
-    animation: wrong-shake 0.4s ease-out;
-  }
-
-  /* Bottom nav safe area */
-  .pb-nav {
-    padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
-  }
-}
-
-@layer utilities {
-  .delay-100 { animation-delay: 100ms; }
-  .delay-200 { animation-delay: 200ms; }
-  .delay-300 { animation-delay: 300ms; }
-  .delay-400 { animation-delay: 400ms; }
-  .delay-500 { animation-delay: 500ms; }
 }
