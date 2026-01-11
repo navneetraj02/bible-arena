@@ -8,6 +8,8 @@ import { BookOpen, Trophy, Sparkles, Zap, ArrowRight, Star, Target, Users, Globe
 import logo from '@/assets/logo.png';
 import { toast } from 'sonner';
 import { PageTransition } from '@/components/layout/PageTransition';
+import { useTutorial } from '@/hooks/useTutorial';
+import { TutorialOverlay } from '@/components/tutorial/TutorialOverlay';
 
 export default function Index() {
   const progress = loadProgress();
@@ -22,9 +24,44 @@ export default function Index() {
     }
   };
 
+  // Tutorial Integration
+  const tutorialSteps = [
+    {
+      title: "Welcome",
+      message: "Greetings, Traveler! I am The Keeper. Welcome to the Bible Arena, where your knowledge of the Scripture will be tested in epic battles!",
+    },
+    {
+      title: "Campaign",
+      message: "Your journey begins here in the Solo Campaign. Prove your worth against ancient challenges and earn your place among the legends.",
+    },
+    {
+      title: "Battle Arena",
+      message: "Ready for a real challenge? Enter the Multiplayer Battle Arena to face off against other scholars in real-time duels of wisdom!",
+    },
+    {
+      title: "Profile",
+      message: "Track your progress, view your stats, and see your rank grow as you master the Word. Your legacy is written here.",
+    },
+    {
+      title: "Go Forth",
+      message: "The scroll is open, and the arena awaits. Go forth, brave scholar, and may His wisdom guide you to victory!",
+    }
+  ];
+
+  const { isOpen, currentStep, currentStepIndex, totalSteps, nextStep, skipTutorial } = useTutorial(tutorialSteps);
+
   return (
     <PageTransition>
       <div className="min-h-screen bg-background">
+        <TutorialOverlay
+          isOpen={isOpen}
+          step={currentStep}
+          currentStepIndex={currentStepIndex}
+          totalSteps={totalSteps}
+          onNext={nextStep}
+          onSkip={skipTutorial}
+        />
+        {/* ... existing content ... */}
         {/* User Header */}
         <div className="px-4 pt-4">
           <div className="max-w-lg mx-auto flex justify-end">
